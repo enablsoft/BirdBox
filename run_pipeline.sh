@@ -3,6 +3,11 @@
 # Exit immediately if a command fails
 set -e
 
+# Activate your conda environment (assumes conda is installed & initialized)
+source /home/mi/conda/miniconda3_8/etc/profile.d/conda.sh
+conda activate birdbox-gpu
+# conda activate birdbox-cpu
+
 
 ######### select the dataset on which inference shall be performed ##########
 # DATASET_NAME="All-In-One_testset"
