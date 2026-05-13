@@ -172,36 +172,25 @@ python src/evaluation/confusion_matrix_analysis.py \
 
 ## Performance Optimization
 
-### For Detection
+#### For detection
 - Use GPU acceleration (automatically detected)
 - Adjust song gap threshold based on species vocalization patterns
 - Adjust ìou threshold to fit the specific use-case
 
-### For Evaluation
+#### For evaluation
 - Tune the β-Parameter for the Fβ-Analysis to fit the specific use-case
 - β < 1 leads to more weight on precision
 - β > 1 leads to more weight on recall
 
 ## Troubleshooting
 
-### Common Issues
-
-**"No detections found"**
+#### No detections at all or poor performance
 - Lower confidence threshold (e.g. `--conf 0.1`)
 - Check if audio file is in a supported format (WAV, FLAC, OGG, MP3)
 - Verify model is trained on similar species
 - If using MP3/OGG, try with WAV/FLAC version of same recording
 
-**"Poor detection performance"**
-- Use lossless formats (WAV/FLAC) instead of lossy (MP3/OGG)
-- Model was trained on WAV files - lossy compression can affect accuracy
-- Ensure MP3/OGG files use high bitrate (≥256 kbps) if you must use them
-
-**"Out of memory errors"**
-- Process shorter audio files
-- Reduce PCEN segment length in config
-
-**"No matching files in evaluation"**
+#### No matching files in evaluation
 - Verify ground truth CSV has correct column names
 - Ensure audio filenames match between detections and labels
 
