@@ -4,14 +4,43 @@
 set -e
 
 
-DATASET_NAME="Northeastern-US_testset"
-SPECIES_MAPPING="Northeastern-US"
+######### select the dataset on which inference shall be performed ##########
+# DATASET_NAME="All-In-One_testset"
+# DATASET_NAME="Western-US"
+# DATASET_NAME="Hawaii_testset"
+DATASET_NAME="Northeastern-US_testset-subset"
+
+
+######### select model ##########
+MODEL_PATH="models/${DATASET_NAME/_testset-subset/}.pt"
+# MODEL_PATH="models/Just-Bird.pt"
+# MODEL_PATH="models/All-In-One-Transfer.pt"
+
+
+######### select the species mapping (according to dataset and model) ##########
+SPECIES_MAPPING="${DATASET_NAME/_testset-subset/}"
+# SPECIES_MAPPING="Just-Bird"
+# SPECIES_MAPPING="All-In-One"
+
+
+######### toggle single class mode ##########
+# USE_SINGLE_CLS=true
 USE_SINGLE_CLS=false
 
-MODEL_PATH="models/${DATASET_NAME/_testset/}.pt"
-# MODEL_PATH="models/Just-Bird.pt"
-OUTPUT_PATH="results/${DATASET_NAME/_testset/}"
+
+######### select output path ##########
+OUTPUT_PATH="results/${DATASET_NAME/_testset-subset/}"
 # OUTPUT_PATH="results/Just-Bird"
+# OUTPUT_PATH="results/All-In-One-Transfer"
+
+
+###########################################################################################
+######### the most important parameters are already set via the script variables 
+######### but details like IoU threshold, song gap threshold, etc. can be changed below this heading
+######### to skip entire steps (for instance the confusion matrix) just uncomment the respective lines 
+###########################################################################################
+
+
 RAW_DETECTIONS_BASE="${OUTPUT_PATH}/raw_detections"
 MERGED_DETECTIONS_BASE="${OUTPUT_PATH}/merged_detections"
 
