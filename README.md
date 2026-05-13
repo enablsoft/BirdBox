@@ -35,24 +35,57 @@ If you use the code as a package, you can specify the `model` function parameter
 
 ## Getting Started
 
-### Installation
+### Option 1: Conda (Recommended)
+
+Prerequisite: Anaconda or Miniconda has to be installed previously.
 
 ```bash
-# Clone the repository
+### 1. Clone the repository
 git clone https://github.com/birdnet-team/BirdBox.git
 cd BirdBox
 
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+### 2. Create the environment from the file
+# for Linux/Windows
+conda env create -f environment-gpu.yml
+# for Mac/CPU-only
+# conda env create -f environment-cpu.yml
 
-# Install dependencies
+### 3. Activate the environment
+conda activate birdbox-gpu
+# conda activate birdbox-cpu
+```
+
+### Option 2: Pip
+
+```bash
+### 1. Clone the repository
+git clone https://github.com/birdnet-team/BirdBox.git
+cd BirdBox
+
+### 2. Create a virtual environment
+# Windows
+# python -m venv .venv
+# Linux/macOS
+python3 -m venv .venv
+
+### 3. Activate the environment
+# Windows (Command Prompt)
+# .venv\Scripts\activate
+# Windows (PowerShell)
+# .\.venv\Scripts\Activate.ps1
+# Linux/macOS
+source .venv/bin/activate
+
+### 4. Install dependencies
 pip install -r requirements.txt
 ```
 
-### Basic Usage, i. e. run detection on single audio files
+## Basic Usage, i. e. run detection on single audio files
 
-#### Option 1: Web Interface (Streamlit App)
+This section is only meant for single files.
+If you want to run detection on entire datasets see [Typical Workflow](#typical-workflow).
+
+### Option 1: Web Interface (Streamlit App)
 
 The easiest way to use BirdBox is through the interactive web interface:
 
@@ -72,7 +105,7 @@ If done correctly, the Streamlit Web Interface will look like this:
 
 ![Streamlit app screenshot](docs/img/streamlit_ui_screenshot.png)
 
-#### Option 2: Command Line Interface
+### Option 2: Command Line Interface
 
 ```bash
 # Detect birds in a single audio file (supports WAV, FLAC, OGG, MP3)
@@ -90,6 +123,10 @@ python src/inference/detect_birds.py \
 
 ## Typical Workflow
 
+The following workflow can also be found in **[run_pipeline.sh](run_pipeline.sh)** for Linux/Mac and in **[run_pipeline.bat](run_pipeline.bat)** for Windows.
+Both come with predefined variables that prevent redundant typing.
+Feel free to adapt them to your specific use case.
+
 ### Complete Detection & Evaluation Pipeline
 
 ```bash
@@ -102,7 +139,7 @@ python src/inference/detect_birds.py \
     --output-format json \
     --conf 0.001 \
     --no-merge \
-    --nms-iou 0.7 \
+    --nms-iou 0.8 \
     --workers 2
 
 # Step 2: Analyze F-beta scores to find optimal threshold
@@ -110,7 +147,7 @@ python src/evaluation/f_beta_score_analysis.py \
     --detections results/raw_detections.json \
     --labels path/to/labels.csv \
     --output-path results/f_beta_analysis \
-    --beta 2.0 \
+    --beta 1.0 \
     --iou-threshold 0.25 \
     --song-gap 0.1 \
     --num-workers 4
@@ -132,8 +169,6 @@ python src/evaluation/confusion_matrix_analysis.py \
 
 # Step 5: Examine results in results/ directory
 ```
-
-Feel free to adapt **[run_pipeline.sh](run_pipeline.sh)** to your use case. This script serves as an example for a typical workflow.
 
 ## Performance Optimization
 
@@ -200,4 +235,3 @@ Without these partnerships, this project would not have been possible.
 Thank you!
 
 ![Logos of all partners](https://tuc.cloud/index.php/s/KSdWfX5CnSRpRgQ/download/box_logos.png)
-
