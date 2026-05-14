@@ -11,6 +11,7 @@ import sys
 import tempfile
 import json
 import base64
+import hashlib
 import time
 import threading
 from pathlib import Path
@@ -716,6 +717,7 @@ def main():
             file_name=f"{species_mapping_name}_species_list.csv",
             mime="text/csv",
             key="download_species_csv",
+            on_click="ignore",
             use_container_width=True
         )
         
@@ -739,6 +741,7 @@ def main():
             file_name=f"{species_mapping_name}_species_list.json",
             mime="application/json",
             key="download_species_json",
+            on_click="ignore",
             use_container_width=True
         )
     
@@ -1284,44 +1287,67 @@ def main():
         else:
             bird_colors = species_mappings['bird_colors']
         
-        with st.spinner("Generating spectrogram with PCEN and adding bounding boxes..."):
-            try:
-                full_spectrogram = create_full_spectrogram_visualization(audio, sr, detections, bird_colors=bird_colors)
-                # Validate the image was created successfully
-                if full_spectrogram is None:
-                    raise RuntimeError("Spectrogram generation returned None")
-                if full_spectrogram.size[0] == 0 or full_spectrogram.size[1] == 0:
-                    raise RuntimeError(f"Invalid spectrogram dimensions: {full_spectrogram.size}")
-            except Exception as e:
-                st.error(f"⚠️ Error generating spectrogram: {e}")
-                import traceback
-                st.code(traceback.format_exc())
-                # Create a placeholder image with error message
-                duration = len(audio) / sr
-                width_pixels = max(100, int(duration * 100))
-                full_spectrogram = Image.new('RGB', (width_pixels, 600), color='black')
-                # Add error text to the image
-                from PIL import ImageDraw, ImageFont
-                draw = ImageDraw.Draw(full_spectrogram)
+        # Download button clicks trigger Streamlit reruns; cache rendered spectrogram to avoid needless regeneration.
+        detections_signature = hashlib.sha256(
+            json.dumps(convert_to_json_serializable(detections), sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        bird_colors_signature = hashlib.sha256(
+            json.dumps(convert_to_json_serializable(bird_colors), sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        spectrogram_cache_key = {
+            'tmp_audio_path': st.session_state.get('tmp_audio_path'),
+            'audio_samples': len(audio),
+            'sample_rate': sr,
+            'detections_signature': detections_signature,
+            'bird_colors_signature': bird_colors_signature,
+        }
+
+        img_base64 = None
+        cached_key = st.session_state.get('spectrogram_cache_key')
+        if cached_key == spectrogram_cache_key:
+            img_base64 = st.session_state.get('spectrogram_img_base64')
+
+        if not img_base64:
+            with st.spinner("Generating spectrogram with PCEN and adding bounding boxes..."):
                 try:
-                    # Try to use a default font
-                    font = ImageFont.load_default()
-                except:
-                    font = None
-                error_text = f"Error: {str(e)[:50]}"
-                draw.text((10, 10), error_text, fill='red', font=font)
-        
-        # Display spectrogram in scrollable container
-        if full_spectrogram:
-            with st.spinner("Rendering spectrogram..."):
+                    full_spectrogram = create_full_spectrogram_visualization(audio, sr, detections, bird_colors=bird_colors)
+                    # Validate the image was created successfully
+                    if full_spectrogram is None:
+                        raise RuntimeError("Spectrogram generation returned None")
+                    if full_spectrogram.size[0] == 0 or full_spectrogram.size[1] == 0:
+                        raise RuntimeError(f"Invalid spectrogram dimensions: {full_spectrogram.size}")
+                except Exception as e:
+                    st.error(f"⚠️ Error generating spectrogram: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
+                    # Create a placeholder image with error message
+                    duration = len(audio) / sr
+                    width_pixels = max(100, int(duration * 100))
+                    full_spectrogram = Image.new('RGB', (width_pixels, 600), color='black')
+                    # Add error text to the image
+                    from PIL import ImageDraw, ImageFont
+                    draw = ImageDraw.Draw(full_spectrogram)
+                    try:
+                        # Try to use a default font
+                        font = ImageFont.load_default()
+                    except:
+                        font = None
+                    error_text = f"Error: {str(e)[:50]}"
+                    draw.text((10, 10), error_text, fill='red', font=font)
+
                 # Convert image to base64 for HTML display
                 buf = io.BytesIO()
                 full_spectrogram.save(buf, format='PNG')
                 buf.seek(0)
                 img_base64 = base64.b64encode(buf.read()).decode()
-                
-                # Create horizontally scrollable container with mouse wheel scrolling
-                components.html(
+
+                st.session_state['spectrogram_img_base64'] = img_base64
+                st.session_state['spectrogram_cache_key'] = spectrogram_cache_key
+
+        # Display spectrogram in scrollable container
+        if img_base64:
+            # Create horizontally scrollable container with mouse wheel scrolling
+            components.html(
                 f"""
                 <!DOCTYPE html>
                 <html>
@@ -1382,8 +1408,8 @@ def main():
                 """,
                 height=622,
                 scrolling=False
-                )
-                # st.caption("Scroll horizontally to navigate through the audio timeline")
+            )
+            # st.caption("Scroll horizontally to navigate through the audio timeline")
         
         # Wait 3 seconds after spectrogram is rendered, then remove the success message
         if show_success_message:
@@ -1498,7 +1524,8 @@ def main():
                 label="Download JSON",
                 data=json_str,
                 file_name=f"{Path(uploaded_file.name).stem}_detections.json",
-                mime="application/json"
+                mime="application/json",
+                on_click="ignore"
             )
         
         with col2:
@@ -1521,7 +1548,8 @@ def main():
                 label="Download CSV",
                 data=csv_str,
                 file_name=f"{Path(uploaded_file.name).stem}_detections.csv",
-                mime="text/csv"
+                mime="text/csv",
+                on_click="ignore"
             )
 
         with col3:
@@ -1537,7 +1565,8 @@ def main():
                 label="Download Xeno-Canto JSON",
                 data=xc_json_str,
                 file_name=f"{Path(uploaded_file.name).stem}_detections_xc.json",
-                mime="application/json"
+                mime="application/json",
+                on_click="ignore"
             )
     
     # Footer
