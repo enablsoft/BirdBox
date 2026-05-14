@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Streamlit app for bird call detection using trained YOLO models.
+Streamlit app for bird vocalization detection using trained YOLO models.
 
 This app allows users to upload audio files, select models, adjust detection parameters,
 and visualize detections with PCEN spectrograms and bounding boxes.
@@ -534,13 +534,13 @@ def format_detections_for_table(detections: List[Dict], species_mappings: Dict =
 
 def main():
     st.set_page_config(
-        page_title="BirdBox - Bird Call Detection",
+        page_title="BirdBox - Bird Vocalization Detection",
         layout="wide",
         page_icon="🐦"
     )
     
-    st.title("BirdBox - Bird Call Detection")
-    st.markdown("Upload audio files to detect bird calls using trained YOLO models")
+    st.title("BirdBox - Bird Vocalization Detection")
+    st.markdown("Upload audio files to detect bird vocalizations using trained YOLO models")
     
     # Custom CSS to fix selectbox dropdown highlighting
     st.markdown("""
@@ -619,7 +619,7 @@ def main():
             model_names,
             index=default_index,
             help="""
-            Choose a trained model for bird call detection.\\
+            Choose a trained model for bird vocalization detection.\\
             All models located in the models/ directory are listed here.
             """
         )
@@ -802,7 +802,7 @@ def main():
         for key in ['detections', 'audio', 'sr', 'tmp_audio_path', 'just_completed', 'detection_in_progress', 'model_path']:
             if key in st.session_state:
                 del st.session_state[key]
-        st.info("Settings changed. Click 'Detect Bird Calls' to run detection with the selected settings.")
+        st.info("Settings changed. Click 'Detect Bird Vocalizations' to run detection with the selected settings.")
     
     # Store current values for next comparison
     st.session_state['previous_model'] = selected_model
@@ -979,7 +979,7 @@ def main():
     if uploaded_file is not None and 'detections' not in st.session_state and not st.session_state.get('detection_in_progress', False) and not st.session_state.get('in_waiting_pool', False):
         # Show the button - rate limiting check happens when button is clicked
         # Don't check status until button is clicked to avoid infinite loops
-        if st.button("Detect Bird Calls", type="primary"):
+        if st.button("Detect Bird Vocalizations", type="primary"):
             if CONCURRENCY_CONTROL_ENABLED and concurrency_manager:
                 # Now check if we can actually start (this may add to waiting pool)
                 can_start, reason = concurrency_manager.can_start_detection(session_id)
@@ -1259,7 +1259,7 @@ def main():
         success_placeholder = st.empty()
         
         if show_success_message:
-            success_placeholder.info(f"Detection complete! Found {len(detections)} bird call segments.")
+            success_placeholder.info(f"Detection complete! Found {len(detections)} bird vocalization segments.")
             st.session_state['just_completed'] = False
         
         st.markdown("---")
@@ -1545,7 +1545,7 @@ def main():
     st.markdown(
         """
         <div style='text-align: center'>
-            <p>BirdBox - Bird Call Detection System</p>
+            <p>BirdBox - Bird Vocalization Detection System</p>
             <p style='font-size: 0.8em; color: gray;'>
                 Upload audio files in WAV, FLAC, OGG, or MP3 format. 
                 Adjust detection parameters in the sidebar for optimal results.
