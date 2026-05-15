@@ -35,9 +35,17 @@ If you use the code as a package, you can specify the `model` function parameter
 
 ## Getting Started
 
+This may take 10-20 minutes because BirdBox relies on relatively big Deep Learning libraries such as PyTorch and Ultralytics.
+
 ### Option 1: Conda (Recommended)
 
-Prerequisite: Anaconda or Miniconda has to be installed previously.
+Prerequisite: Anaconda or Miniconda has to be installed in advance. Additionally, use mamba for faster dependecy resolution. If it isn't already installed you can use:
+
+```bash
+conda install -n base -c conda-forge mamba
+```
+
+Once conda and mamba is ready, you can adapt and use this setup script:
 
 ```bash
 ### 1. Clone the repository
@@ -45,17 +53,17 @@ git clone https://github.com/birdnet-team/BirdBox.git
 cd BirdBox
 
 ### 2. Create the environment from the file
-# for Linux/Windows
-conda env create -f environment-gpu.yml
-# for Mac/CPU-only
-# conda env create -f environment-cpu.yml
+mamba env create -f environment-gpu.yml  # for Linux/Windows
+# mamba env create -f environment-cpu.yml  # for Mac/CPU-only
 
 ### 3. Activate the environment
 conda activate birdbox-gpu
 # conda activate birdbox-cpu
 ```
 
-### Option 2: Pip
+### Option 2: .venv + pip
+
+Prerequisite: Python 3.12 has to be installed in advance.
 
 ```bash
 ### 1. Clone the repository
@@ -63,21 +71,16 @@ git clone https://github.com/birdnet-team/BirdBox.git
 cd BirdBox
 
 ### 2. Create a virtual environment
-# Windows
-# python -m venv .venv
-# Linux/macOS
-python3 -m venv .venv
+python3 -m venv .venv  # Linux/macOS
+# python -m venv .venv  # Windows
 
 ### 3. Activate the environment
-# Windows (Command Prompt)
-# .venv\Scripts\activate
-# Windows (PowerShell)
-# .\.venv\Scripts\Activate.ps1
-# Linux/macOS
-source .venv/bin/activate
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate  # Windows (Command Prompt)
+# .\.venv\Scripts\Activate.ps1  # Windows (PowerShell)
 
 ### 4. Install dependencies
-pip install -r requirements.txt
+python install.py
 ```
 
 ## Basic Usage, i. e. run detection on single audio files
