@@ -78,11 +78,11 @@ SPECIES_MAPPING = {
             "yefcan": "Crithagra mozambica_Yellow-fronted Canary",
         },
         'bird_colors': {
-            0: (255, 69, 0),      # Bright red-orange
+            0: (50, 70, 242),     # Dark Blue
             1: (0, 255, 0),       # Bright green
             2: (30, 144, 255),    # Dodger blue
             3: (255, 215, 0),     # Gold
-            4: (255, 105, 180),   # Hot pink
+            4: (159, 104, 232),   # Purple
             5: (138, 43, 226),    # Blue violet
             6: (0, 255, 255),     # Cyan
             7: (255, 140, 0),     # Dark orange
