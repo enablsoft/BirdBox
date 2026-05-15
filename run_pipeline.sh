@@ -3,10 +3,13 @@
 # Exit immediately if a command fails
 set -e
 
-# Activate your conda environment (assumes conda is installed & initialized)
-source /home/mi/conda/miniconda3_8/etc/profile.d/conda.sh
-conda activate birdbox-gpu
-# conda activate birdbox-cpu
+# Optional: activate local virtual environment if present.
+# If .venv does not exist, the script uses the current Python on PATH.
+if [ -f ".venv/bin/activate" ]; then
+    echo "Activating .venv"
+    # shellcheck source=/dev/null
+    source ".venv/bin/activate"
+fi
 
 
 ######### select the dataset on which inference shall be performed ##########
@@ -53,10 +56,6 @@ SINGLE_CLS_FLAG=()
 if [ "${USE_SINGLE_CLS}" = true ]; then
     SINGLE_CLS_FLAG+=(--single-cls)
 fi
-
-# Activate your conda environment (assumes conda is installed & initialized)
-source /home/mi/conda/miniconda3_8/etc/profile.d/conda.sh
-conda activate birdbox
 
 # Step 1: Run inference with low confidence and --no-merge to get raw (unmerged) detections.
 # This matches the filter-then-merge policy when later filtering at each confidence threshold.

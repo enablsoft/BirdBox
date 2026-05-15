@@ -1,3 +1,12 @@
+"""
+BirdBox dependency bootstrap script.
+
+This script exists to resolve PyTorch installation mode automatically:
+CPU/MPS on macOS or non-NVIDIA systems, and CUDA (cu118) on NVIDIA systems.
+Without that torch-mode resolution, setup would usually be just:
+pip install -r requirements.txt
+"""
+
 import platform
 import subprocess
 import sys
@@ -49,7 +58,7 @@ def require_python_312():
         current = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
         raise SystemExit(
             f"Unsupported Python version: {current}. "
-            f"This project mirrors conda envs and requires Python {expected}.x."
+            f"This project requires Python {expected}.x."
         )
 
 

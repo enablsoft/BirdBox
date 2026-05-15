@@ -33,37 +33,11 @@ If you use the code as a package, you can specify the `model` function parameter
 
 **Important:** The species mapping in the `conf.yaml` file the model is trained with and the `DATASETS[model_name]` dictionary in [`src/config.py`](src/config.py#L17) have to match.
 
-## Getting Started
-
-This may take 10-20 minutes because BirdBox relies on relatively big Deep Learning libraries such as PyTorch and Ultralytics.
-
-### Option 1: Conda (Recommended)
-
-Prerequisite: Anaconda or Miniconda has to be installed in advance. Additionally, use mamba for faster dependecy resolution. If it isn't already installed you can use:
-
-```bash
-conda install -n base -c conda-forge mamba
-```
-
-Once conda and mamba is ready, you can adapt and use this setup script:
-
-```bash
-### 1. Clone the repository
-git clone https://github.com/birdnet-team/BirdBox.git
-cd BirdBox
-
-### 2. Create the environment from the file
-mamba env create -f environment-gpu.yml  # for Linux/Windows
-# mamba env create -f environment-cpu.yml  # for Mac/CPU-only
-
-### 3. Activate the environment
-conda activate birdbox-gpu
-# conda activate birdbox-cpu
-```
-
-### Option 2: .venv + pip
+## Installation
 
 Prerequisite: Python 3.12 has to be installed in advance.
+
+This may take 10-20 minutes because BirdBox relies on large Deep Learning libraries such as PyTorch and Ultralytics.
 
 ```bash
 ### 1. Clone the repository

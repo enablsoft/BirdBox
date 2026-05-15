@@ -4,10 +4,12 @@ setlocal EnableExtensions EnableDelayedExpansion
 REM Exit if any command fails
 set "FAILED=0"
 
-REM Select conda environment
-set "CONDA_ENV=birdbox"
-REM set "CONDA_ENV=birdbox-gpu"
-REM set "CONDA_ENV=birdbox-cpu"
+REM Optional: activate local virtual environment if present.
+REM If .venv is missing, script uses python from PATH.
+if exist ".venv\Scripts\activate.bat" (
+    call ".venv\Scripts\activate.bat"
+    if errorlevel 1 goto :fail
+)
 
 REM Select the dataset on which inference shall be performed
 REM set "DATASET_NAME=All-In-One_testset"
@@ -40,18 +42,6 @@ set "MERGED_DETECTIONS_BASE=%OUTPUT_PATH%\merged_detections"
 
 set "SINGLE_CLS_FLAG="
 if /I "%USE_SINGLE_CLS%"=="true" set "SINGLE_CLS_FLAG=--single-cls"
-
-REM Activate conda environment (assumes conda is installed and initialized)
-if exist "%USERPROFILE%\miniconda3\Scripts\activate.bat" (
-    call "%USERPROFILE%\miniconda3\Scripts\activate.bat" %CONDA_ENV%
-) else if exist "%USERPROFILE%\anaconda3\Scripts\activate.bat" (
-    call "%USERPROFILE%\anaconda3\Scripts\activate.bat" %CONDA_ENV%
-) else (
-    echo Could not find conda activate script in "%USERPROFILE%\miniconda3" or "%USERPROFILE%\anaconda3".
-    echo Please edit run_pipeline.bat and set your conda activate path.
-    exit /b 1
-)
-if errorlevel 1 goto :fail
 
 REM Step 1: Run inference with low confidence and --no-merge to get raw detections.
 echo Running inference (raw detections, no merge)...
