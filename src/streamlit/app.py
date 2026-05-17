@@ -533,6 +533,28 @@ def format_detections_for_table(detections: List[Dict], species_mappings: Dict =
     return pd.DataFrame(df_data)
 
 
+def format_detections_for_raven_txt(detections: List[Dict]) -> str:
+    """
+    Format detections as a Raven Selection Table (.txt, tab-separated).
+    """
+    raven_rows = []
+
+    for selection_idx, det in enumerate(sorted(detections, key=lambda x: x['time_start']), start=1):
+        raven_rows.append({
+            'Selection': selection_idx,
+            'View': 'Spectrogram 1',
+            'Channel': 1,
+            'Begin Time (S)': f"{det['time_start']:.1f}",
+            'End Time (S)': f"{det['time_end']:.1f}",
+            'Low Freq (Hz)': det['freq_low_hz'],
+            'High Freq (Hz)': det['freq_high_hz'],
+            'Annotation': det['species'],
+        })
+
+    raven_df = pd.DataFrame(raven_rows)
+    return raven_df.to_csv(index=False, sep='\t')
+
+
 def main():
     st.set_page_config(
         page_title="BirdBox - Bird Vocalization Detection",
@@ -1500,7 +1522,7 @@ def main():
         st.markdown("---")
         st.subheader("Download Results")
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         
         with col1:
             # JSON download
@@ -1521,7 +1543,7 @@ def main():
             json_data = convert_to_json_serializable(json_data)
             json_str = json.dumps(json_data, indent=2)
             st.download_button(
-                label="Download JSON",
+                label="Download as JSON with algorithm metadata",
                 data=json_str,
                 file_name=f"{Path(uploaded_file.name).stem}_detections.json",
                 mime="application/json",
@@ -1545,7 +1567,7 @@ def main():
             csv_str = csv_df.to_csv(index=False)
             
             st.download_button(
-                label="Download CSV",
+                label="Download as simplified CSV",
                 data=csv_str,
                 file_name=f"{Path(uploaded_file.name).stem}_detections.csv",
                 mime="text/csv",
@@ -1553,7 +1575,7 @@ def main():
             )
 
         with col3:
-            # Xeno-canto Annota-JSON download
+            # Xeno-Canto Annota-JSON download
             xc_json_data = build_xeno_canto_json(
                 detections,
                 audio_path=uploaded_file.name if 'uploaded_file' in locals() else None,
@@ -1562,10 +1584,20 @@ def main():
             xc_json_str = json.dumps(convert_to_json_serializable(xc_json_data), indent=2)
 
             st.download_button(
-                label="Download Xeno-Canto JSON",
+                label="Download as Xeno-Canto Annota-JSON",
                 data=xc_json_str,
                 file_name=f"{Path(uploaded_file.name).stem}_detections_xc.json",
                 mime="application/json",
+                on_click="ignore"
+            )
+
+        with col4:
+            raven_txt = format_detections_for_raven_txt(detections)
+            st.download_button(
+                label="Download as Raven Selection Table",
+                data=raven_txt,
+                file_name=f"{Path(uploaded_file.name).stem}_raven.txt",
+                mime="text/plain",
                 on_click="ignore"
             )
     

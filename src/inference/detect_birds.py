@@ -19,6 +19,7 @@ import json
 import tempfile
 import shutil
 import threading
+import csv
 from pathlib import Path
 from typing import List, Dict, Tuple
 import numpy as np
@@ -629,14 +630,15 @@ class BirdCallDetector:
         """
         return reconstruct_songs(detections, self.song_gap_threshold)
     
-    def detect_multiple_files(self, audio_paths: List[str], output_path: str = None, output_format: str = 'json', no_merge: bool = False) -> List[Dict]:
+    def detect_multiple_files(self, audio_paths: List[str], output_path: str = None, output_format: str = 'json-with-algorithm-metadata', no_merge: bool = False) -> List[Dict]:
         """
         Detect bird calls in multiple audio files.
         
         Args:
             audio_paths: List of paths to WAV files
             output_path: Optional base path to save results (without extension)
-            output_format: Output format - 'json', 'csv', 'xc-json', or 'all'
+            output_format: Output format - 'json-with-algorithm-metadata', 'simplified-csv',
+                'xeno-canto-annota-json', 'raven-selection-table', or 'all'
             no_merge: If True, return raw (unmerged) detections; add filename to each for later merge.
             
         Returns:
@@ -736,7 +738,7 @@ class BirdCallDetector:
             # Clean up temporary directory
             shutil.rmtree(temp_dir, ignore_errors=True)
 
-    def detect(self, audio_path: str, output_path: str = None, output_format: str = 'json', no_merge: bool = False) -> List[Dict]:
+    def detect(self, audio_path: str, output_path: str = None, output_format: str = 'json-with-algorithm-metadata', no_merge: bool = False) -> List[Dict]:
         """
         Detect bird calls in an audio file or directory.
         
@@ -745,7 +747,8 @@ class BirdCallDetector:
         Args:
             audio_path: Path to audio file or directory containing audio files
             output_path: Optional base path to save results (without extension)
-            output_format: Output format - 'json', 'csv', 'xc-json', or 'all'
+            output_format: Output format - 'json-with-algorithm-metadata', 'simplified-csv',
+                'xeno-canto-annota-json', 'raven-selection-table', or 'all'
             no_merge: If True, save raw (unmerged) detections for filter-then-merge workflows (e.g. F-score sweep).
             
         Returns:
@@ -845,8 +848,6 @@ class BirdCallDetector:
             output_path: Path to save CSV file
             audio_path: Original audio file path (for metadata, optional for multi-file)
         """
-        import csv
-        
         with open(output_path, 'w', newline='') as f:
             writer = csv.writer(f)
             
@@ -878,13 +879,93 @@ class BirdCallDetector:
         
         print(f"\nSaved detections to CSV: {output_path}")
 
-    def save_detections_xc_json(self, detections: List[Dict], output_path: str, audio_path: str = None):
+    def _build_raven_rows(self, detections: List[Dict]) -> List[Dict]:
         """
-        Save detections to Xeno-canto Annota-JSON.
+        Build Raven Selection Table rows for a single audio file.
+
+        Args:
+            detections: Detections for one file
+        Returns:
+            List of row dictionaries in Raven tabular format
+        """
+        raven_rows = []
+
+        for index, det in enumerate(sorted(detections, key=lambda x: x['time_start']), start=1):
+            raven_rows.append({
+                'Selection': index,
+                'View': 'Spectrogram 1',
+                'Channel': 1,
+                'Begin Time (S)': f"{det['time_start']:.1f}",
+                'End Time (S)': f"{det['time_end']:.1f}",
+                'Low Freq (Hz)': det['freq_low_hz'],
+                'High Freq (Hz)': det['freq_high_hz'],
+                'Annotation': det['species'],
+            })
+
+        return raven_rows
+
+    def save_detections_raven_txt(self, detections: List[Dict], output_path: str, audio_path: str = None):
+        """
+        Save detections as Raven Selection Tables (.txt, tab-separated).
+
+        Single-file mode writes one .txt file.
+        Multi-file mode writes one .txt file per source audio into a directory.
 
         Args:
             detections: List of detections
-            output_path: Path to save Xeno-canto JSON file
+            output_path: Base output path used to derive file or directory name
+            audio_path: Original audio file path (optional for multi-file)
+        """
+        is_multi_file = any('filename' in det for det in detections)
+        output_path_obj = Path(output_path)
+        fieldnames = [
+            'Selection',
+            'View',
+            'Channel',
+            'Begin Time (S)',
+            'End Time (S)',
+            'Low Freq (Hz)',
+            'High Freq (Hz)',
+            'Annotation',
+        ]
+
+        if is_multi_file:
+            output_dir = output_path_obj.parent / f"{output_path_obj.stem}_raven"
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            grouped = {}
+            for det in detections:
+                source_filename = det.get('filename', 'unknown')
+                grouped.setdefault(source_filename, []).append(det)
+
+            for source_filename, group_detections in grouped.items():
+                raven_rows = self._build_raven_rows(group_detections)
+                output_file = output_dir / f"{source_filename}.txt"
+
+                with open(output_file, 'w', newline='') as f:
+                    writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='\t')
+                    writer.writeheader()
+                    writer.writerows(raven_rows)
+
+            print(f"\nSaved Raven Selection Tables to directory: {output_dir}")
+        else:
+            raven_rows = self._build_raven_rows(detections)
+            output_file = output_path_obj.with_suffix('.txt')
+
+            with open(output_file, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='\t')
+                writer.writeheader()
+                writer.writerows(raven_rows)
+
+            print(f"\nSaved Raven Selection Table: {output_file}")
+
+    def save_detections_xc_json(self, detections: List[Dict], output_path: str, audio_path: str = None):
+        """
+        Save detections to Xeno-Canto Annota-JSON.
+
+        Args:
+            detections: List of detections
+            output_path: Path to save Xeno-Canto Annota-JSON file
             audio_path: Original audio file path (for metadata, optional for multi-file)
         """
         output = build_xeno_canto_json(
@@ -896,9 +977,9 @@ class BirdCallDetector:
         with open(output_path, 'w') as f:
             json.dump(output, f, indent=2)
 
-        print(f"\nSaved detections to Xeno-canto JSON: {output_path}")
+        print(f"\nSaved detections to Xeno-Canto Annota-JSON: {output_path}")
     
-    def save_results(self, detections: List[Dict], output_path: str, audio_path: str = None, output_format: str = 'json'):
+    def save_results(self, detections: List[Dict], output_path: str, audio_path: str = None, output_format: str = 'json-with-algorithm-metadata'):
         """
         Save detections in the specified format(s).
         
@@ -906,21 +987,25 @@ class BirdCallDetector:
             detections: List of detections
             output_path: Base path for output files (without extension)
             audio_path: Original audio file path (for metadata, optional for multi-file)
-            output_format: Output format - 'json', 'csv', 'xc-json', or 'all'
+            output_format: Output format - 'json-with-algorithm-metadata', 'simplified-csv',
+                'xeno-canto-annota-json', 'raven-selection-table', or 'all'
         """
         output_path_obj = Path(output_path)
         
-        if output_format == 'json' or output_format == 'all':
+        if output_format == 'json-with-algorithm-metadata' or output_format == 'all':
             json_path = str(output_path_obj.with_suffix('.json'))
             self.save_detections(detections, json_path, audio_path)
         
-        if output_format == 'csv' or output_format == 'all':
+        if output_format == 'simplified-csv' or output_format == 'all':
             csv_path = str(output_path_obj.with_suffix('.csv'))
             self.save_detections_csv(detections, csv_path, audio_path)
 
-        if output_format == 'xc-json' or output_format == 'all':
+        if output_format == 'xeno-canto-annota-json' or output_format == 'all':
             xc_json_path = str(output_path_obj.with_suffix('.xc.json'))
             self.save_detections_xc_json(detections, xc_json_path, audio_path)
+
+        if output_format == 'raven-selection-table' or output_format == 'all':
+            self.save_detections_raven_txt(detections, str(output_path_obj), audio_path)
     
     def print_summary(self, detections: List[Dict]):
         """Print a summary of detections."""
@@ -1063,14 +1148,17 @@ Examples:
   # Process entire folder of audio files
   python src/inference/detect_birds.py --audio /path/to/audio/folder --model models/Western-US.pt --species-mapping Western-US --output-path results --output-format all
   
-  # Process FLAC file
-  python src/inference/detect_birds.py --audio recording.flac --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format json
+  # Process FLAC file (JSON with algorithm metadata)
+  python src/inference/detect_birds.py --audio recording.flac --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format json-with-algorithm-metadata
   
-  # Save results to CSV
-  python src/inference/detect_birds.py --audio recording.mp3 --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format csv
+  # Save results to simplified CSV
+  python src/inference/detect_birds.py --audio recording.mp3 --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format simplified-csv
 
-  # Save results to Xeno-canto Annota-JSON
-  python src/inference/detect_birds.py --audio recording.wav --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format xc-json
+  # Save results to Xeno-Canto Annota-JSON
+  python src/inference/detect_birds.py --audio recording.wav --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format xeno-canto-annota-json
+  
+  # Save Raven Selection Table (.txt)
+  python src/inference/detect_birds.py --audio recording.wav --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format raven-selection-table
   
   # Save all formats
   python src/inference/detect_birds.py --audio recording.ogg --model models/Hawaii.pt --species-mapping Hawaii --output-path results --output-format all
@@ -1123,9 +1211,18 @@ Examples:
     parser.add_argument(
         '--output-format',
         type=str,
-        choices=['json', 'csv', 'xc-json', 'all'],
-        default='json',
-        help='Output format: json (default), csv, xc-json, or all formats'
+        choices=[
+            'json-with-algorithm-metadata',
+            'simplified-csv',
+            'xeno-canto-annota-json',
+            'raven-selection-table',
+            'all',
+        ],
+        default='json-with-algorithm-metadata',
+        help=(
+            'Output format: json-with-algorithm-metadata, simplified-csv, '
+            'xeno-canto-annota-json, raven-selection-table, or all'
+        )
     )
     
     # the default value should work perfectly
