@@ -1547,7 +1547,8 @@ def main():
                 data=json_str,
                 file_name=f"{Path(uploaded_file.name).stem}_json-with-algorithm-metadata.json",
                 mime="application/json",
-                on_click="ignore"
+                on_click="ignore",
+                use_container_width=True
             )
         
         with col2:
@@ -1571,7 +1572,8 @@ def main():
                 data=csv_str,
                 file_name=f"{Path(uploaded_file.name).stem}_simplified-csv.csv",
                 mime="text/csv",
-                on_click="ignore"
+                on_click="ignore",
+                use_container_width=True
             )
 
         with col3:
@@ -1588,7 +1590,8 @@ def main():
                 data=xc_json_str,
                 file_name=f"{Path(uploaded_file.name).stem}_xeno-canto-annota-json.json",
                 mime="application/json",
-                on_click="ignore"
+                on_click="ignore",
+                use_container_width=True
             )
 
         with col4:
@@ -1598,7 +1601,8 @@ def main():
                 data=raven_txt,
                 file_name=f"{Path(uploaded_file.name).stem}_raven-selection-table.txt",
                 mime="text/plain",
-                on_click="ignore"
+                on_click="ignore",
+                use_container_width=True
             )
     
     # Footer
