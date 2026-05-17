@@ -37,7 +37,7 @@ If you use the code as a package, you can specify the `model` function parameter
 
 Prerequisite: Python 3.12 has to be installed in advance.
 
-This may take 10-20 minutes because BirdBox relies on large Deep Learning libraries such as PyTorch and Ultralytics.
+This may take approximately ten minutes because BirdBox relies on large deep learning libraries such as PyTorch and Ultralytics.
 
 ```bash
 ### 1. Clone the repository
@@ -56,6 +56,8 @@ source .venv/bin/activate  # Linux/macOS
 ### 4. Install dependencies
 python install.py
 ```
+
+The install.py file can alternatively also be used inside a conda environment.
 
 ## Basic Usage, i. e. run detection on single audio files
 

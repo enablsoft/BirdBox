@@ -5,6 +5,15 @@ This script exists to resolve PyTorch installation mode automatically:
 CPU/MPS on macOS or non-NVIDIA systems, and CUDA (cu118) on NVIDIA systems.
 Without that torch-mode resolution, setup would usually be just:
 pip install -r requirements.txt
+
+This script works for both venv and conda environments.
+Just activate the environment before running the script.
+
+Example:
+```bash
+conda activate my_env
+python install.py
+```
 """
 
 import platform
