@@ -50,7 +50,7 @@ python src\inference\detect_birds.py ^
     --model "%MODEL_PATH%" ^
     --species-mapping "%SPECIES_MAPPING%" ^
     --output-path "%RAW_DETECTIONS_BASE%" ^
-    --output-format json ^
+    --output-format json-with-algorithm-metadata ^
     --conf 0.001 ^
     --no-merge ^
     --nms-iou 0.8 ^

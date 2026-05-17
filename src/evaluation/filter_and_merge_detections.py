@@ -132,7 +132,7 @@ class DetectionFilter:
         print(f"Saved filtered detections to CSV: {output_path}")
 
     def save_filtered_xc_json(self, data: Dict, filtered_detections: List[Dict], output_path: str):
-        """Save filtered detections to Xeno-canto Annota-JSON."""
+        """Save filtered detections to Xeno-Canto Annota-JSON."""
         model_config = data.get('model_config', {})
         species_mapping_name = model_config.get('species_mapping')
         species_mappings = None
@@ -154,17 +154,51 @@ class DetectionFilter:
 
         with open(output_path, 'w') as f:
             json.dump(xc_json_data, f, indent=2)
-        print(f"Saved filtered detections to Xeno-canto JSON: {output_path}")
+        print(f"Saved filtered detections to Xeno-Canto Annota-JSON: {output_path}")
 
-    def save_results(self, data: Dict, filtered_detections: List[Dict], output_path: str, conf_threshold: float, song_gap: float, output_format: str = 'json'):
+    def save_filtered_raven_txt(self, filtered_detections: List[Dict], output_path: str):
+        """Save filtered detections to Raven Selection Table (.txt, tab-separated)."""
+        fieldnames = [
+            'Selection',
+            'View',
+            'Channel',
+            'Begin Time (S)',
+            'End Time (S)',
+            'Low Freq (Hz)',
+            'High Freq (Hz)',
+            'Annotation',
+        ]
+
+        raven_rows = []
+        for selection_idx, det in enumerate(sorted(filtered_detections, key=lambda x: x['time_start']), start=1):
+            raven_rows.append({
+                'Selection': selection_idx,
+                'View': 'Spectrogram 1',
+                'Channel': 1,
+                'Begin Time (S)': f"{det['time_start']:.1f}",
+                'End Time (S)': f"{det['time_end']:.1f}",
+                'Low Freq (Hz)': det['freq_low_hz'],
+                'High Freq (Hz)': det['freq_high_hz'],
+                'Annotation': det['species'],
+            })
+
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='\t')
+            writer.writeheader()
+            writer.writerows(raven_rows)
+        print(f"Saved filtered detections to Raven Selection Table: {output_path}")
+
+    def save_results(self, data: Dict, filtered_detections: List[Dict], output_path: str, conf_threshold: float, song_gap: float, output_format: str = 'json-with-algorithm-metadata'):
         """Save filtered detections in the specified format(s)."""
         output_path_obj = Path(output_path)
-        if output_format in ('json', 'all'):
+        if output_format in ('json-with-algorithm-metadata', 'all'):
             self.save_filtered_json(data, filtered_detections, str(output_path_obj.with_suffix('.json')), conf_threshold, song_gap)
-        if output_format in ('csv', 'all'):
+        if output_format in ('simplified-csv', 'all'):
             self.save_filtered_csv(filtered_detections, str(output_path_obj.with_suffix('.csv')))
-        if output_format in ('xc-json', 'all'):
+        if output_format in ('xeno-canto-annota-json', 'all'):
             self.save_filtered_xc_json(data, filtered_detections, str(output_path_obj.with_suffix('.xc.json')))
+        if output_format in ('raven-selection-table', 'all'):
+            self.save_filtered_raven_txt(filtered_detections, str(output_path_obj.with_suffix('.txt')))
 
     def print_summary(self, data: Dict, filtered_detections: List[Dict], conf_threshold: float):
         """Print a summary of filtering results."""
@@ -231,7 +265,8 @@ def main():
         epilog="""
 Examples:
   python src/evaluation/filter_and_merge_detections.py --input raw_detections.json --output-path results/merged --conf 0.25
-  python src/evaluation/filter_and_merge_detections.py --input raw_detections.json --output-path results/merged --conf 0.25 --output-format xc-json
+  python src/evaluation/filter_and_merge_detections.py --input raw_detections.json --output-path results/merged --conf 0.25 --output-format xeno-canto-annota-json
+  python src/evaluation/filter_and_merge_detections.py --input raw_detections.json --output-path results/merged --conf 0.25 --output-format raven-selection-table
   python src/evaluation/filter_and_merge_detections.py --input raw_detections.json --output-path results/merged --conf 0.25 --song-gap 0.1 --output-format all
         """
     )
@@ -267,9 +302,15 @@ Examples:
     parser.add_argument(
         '--output-format', 
         type=str, 
-        choices=['json', 'csv', 'xc-json', 'all'], 
-        default='json', 
-        help='Output format: json (default), csv, xc-json, or all'
+        choices=[
+            'json-with-algorithm-metadata',
+            'simplified-csv',
+            'xeno-canto-annota-json',
+            'raven-selection-table',
+            'all'
+        ], 
+        default='json-with-algorithm-metadata', 
+        help='Output format: json-with-algorithm-metadata, simplified-csv, xeno-canto-annota-json, raven-selection-table, or all'
     )
 
     args = parser.parse_args()

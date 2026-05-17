@@ -20,7 +20,7 @@ BirdBox is a comprehensive system for detecting and evaluating bird calls in aud
 **Batch Processing** - Process entire directories of audio files  
 **PCEN Normalization** - Per-Channel Energy Normalization for robust spectral features  
 **Comprehensive Evaluation** - F-beta analysis, confusion matrices, optimal threshold finding  
-**Multiple Output Formats** - JSON, CSV (compatible with annotation formats)  
+**Multiple Output Formats** - JSON with algorithm metadata, simplified CSV, Xeno-Canto Annota-JSON, Raven Selection Table  
 **Model Agnostic** - Works with `.pt`, `.onnx`, `.engine` model formats
 
 ## YOLO-Models
@@ -78,7 +78,7 @@ Then open your browser to `http://localhost:8501` and:
 - Adjust detection parameters with sliders
 - Click "Detect Bird Calls"
 - View PCEN spectrograms with bounding boxes
-- Download results as JSON or CSV
+- Download results
 
 If done correctly, the Streamlit Web Interface will look like this:
 
@@ -115,7 +115,7 @@ python src/inference/detect_birds.py \
     --model models/model_name.pt \
     --species-mapping mapping_name \
     --output-path results/raw_detections \
-    --output-format json \
+    --output-format json-with-algorithm-metadata \
     --conf 0.001 \
     --no-merge \
     --nms-iou 0.8 \
@@ -135,7 +135,7 @@ python src/evaluation/f_beta_score_analysis.py \
 python src/evaluation/filter_and_merge_detections.py \
     --input results/raw_detections.json \
     --output-path results/filtered_detections \
-    --output-format json \
+    --output-format json-with-algorithm-metadata \
     --conf 0.2 \
     --song-gap 0.1
 
