@@ -1545,7 +1545,7 @@ def main():
             st.download_button(
                 label="Download as JSON with algorithm metadata",
                 data=json_str,
-                file_name=f"{Path(uploaded_file.name).stem}_detections.json",
+                file_name=f"{Path(uploaded_file.name).stem}_json-with-algorithm-metadata.json",
                 mime="application/json",
                 on_click="ignore"
             )
@@ -1569,7 +1569,7 @@ def main():
             st.download_button(
                 label="Download as simplified CSV",
                 data=csv_str,
-                file_name=f"{Path(uploaded_file.name).stem}_detections.csv",
+                file_name=f"{Path(uploaded_file.name).stem}_simplified-csv.csv",
                 mime="text/csv",
                 on_click="ignore"
             )
@@ -1586,7 +1586,7 @@ def main():
             st.download_button(
                 label="Download as Xeno-Canto Annota-JSON",
                 data=xc_json_str,
-                file_name=f"{Path(uploaded_file.name).stem}_detections_xc.json",
+                file_name=f"{Path(uploaded_file.name).stem}_xeno-canto-annota-json.json",
                 mime="application/json",
                 on_click="ignore"
             )
@@ -1596,7 +1596,7 @@ def main():
             st.download_button(
                 label="Download as Raven Selection Table",
                 data=raven_txt,
-                file_name=f"{Path(uploaded_file.name).stem}_raven.txt",
+                file_name=f"{Path(uploaded_file.name).stem}_raven-selection-table.txt",
                 mime="text/plain",
                 on_click="ignore"
             )
