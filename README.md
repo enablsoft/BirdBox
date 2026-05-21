@@ -1,6 +1,6 @@
 <div align="center">
   <h1>BirdBox</h1>
-  <img src="docs/img/logo_birdbox.png" width="300" alt="BirdBox-Logo" />
+  <img src="docs/img/logo_birdbox.png" width="250" alt="BirdBox-Logo" />
   
   
   <p><strong>Deep Learning Bird Call Detection & Evaluation System</strong></p>
