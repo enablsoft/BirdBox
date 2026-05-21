@@ -21,7 +21,7 @@ import shutil
 import threading
 import csv
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Callable, Optional
 import numpy as np
 import soundfile as sf
 import matplotlib
@@ -680,7 +680,12 @@ class BirdCallDetector:
         
         return all_detections
 
-    def detect_single_file(self, audio_path: str, progress_callback=None, no_merge: bool = False) -> List[Dict]:
+    def detect_single_file(
+        self,
+        audio_path: str,
+        progress_callback: Optional[Callable[[int, int, str], None]] = None,
+        no_merge: bool = False
+    ) -> List[Dict]:
         """
         Detect bird calls in a single audio file (renamed from detect method).
         
