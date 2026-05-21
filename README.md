@@ -2,15 +2,18 @@
   <h1>BirdBox</h1>
   <img src="docs/img/logo_birdbox.png" width="300" alt="BirdBox-Logo" />
   
+  
   <p><strong>Deep Learning Bird Call Detection & Evaluation System</strong></p>
   
+  ![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
   [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
-  
+  ![Species](https://img.shields.io/badge/species-282-brightgreen)
+
 </div>
 
 BirdBox is a comprehensive system for detecting and evaluating bird calls in audio recordings using deep learning. It leverages YOLO (You Only Look Once) object detection on spectrogram images to identify and localize bird vocalizations in time and frequency.
 
-⚠️ **Note**: This project is still in active development. Performance may vary.
+⚠️ **Note**: This project is still under active development. Performance may vary.
 
 ## Key Features
 
