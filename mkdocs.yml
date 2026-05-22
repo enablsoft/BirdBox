@@ -84,6 +84,13 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Demo: getting-started/demo.md
+  - How it works:
+      - Overview: how-it-works/index.md
+      - Detection Internals: how-it-works/detect-birds-internals.md
+      - Training vs Inference: how-it-works/training-vs-inference.md
+      - Inference Pipeline: how-it-works/inference-pipeline.md
+      - Troubleshooting Notes: how-it-works/troubleshooting.md
+      - Results: how-it-works/results.md
   - CLI Reference:
       - CLI Overview: cli/index.md
       - detect_birds.py: cli/detect-birds.md
@@ -91,17 +98,10 @@ nav:
       - filter_and_merge_detections.py: cli/filter-and-merge-detections.md
       - confusion_matrix_analysis.py: cli/confusion-matrix-analysis.md
       - streamlit/app.py: cli/streamlit-app.md
-  - Pipeline:
-      - Overview: pipeline/overview.md
-      - Detection Internals: pipeline/detect-birds-internals.md
-      - Training vs Inference: pipeline/training-vs-inference.md
-      - Inference Pipeline: pipeline/inference-pipeline.md
-      - Troubleshooting Notes: pipeline/troubleshooting.md
-      - Results: pipeline/results.md
-  - Data and Formats:
-      - Overview: formats/index.md
-      - Inputs and Labels: formats/inputs-and-annotations.md
-      - Output Files: formats/outputs.md
+  - Data In/Out:
+      - Overview: data/index.md
+      - Inputs and Labels: data/inputs-and-annotations.md
+      - Output Files: data/outputs.md
   - Models and Metrics:
       - Overview: models-and-metrics/index.md
       - Just-Bird: models-and-metrics/just-bird.md
