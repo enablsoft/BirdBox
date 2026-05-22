@@ -1,0 +1,113 @@
+site_name: BirdBox
+site_description: Deep learning bird call detection and evaluation with YOLO-based acoustic models
+site_author: BirdNET-Team
+site_url: https://birdnet-team.github.io/BirdBox/
+
+repo_name: birdnet-team/BirdBox
+repo_url: https://github.com/birdnet-team/BirdBox
+
+copyright: Copyright &copy; 2026 BirdNET-Team
+
+theme:
+  name: material
+  logo: img/logo_birdbox.png
+  favicon: img/logo_birdbox.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.footer
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_source: false
+            show_category_heading: true
+            heading_level: 3
+            members_order: source
+            show_if_no_docstring: false
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Demo: getting-started/demo.md
+  - CLI Reference:
+      - CLI Overview: cli/index.md
+      - detect_birds.py: cli/detect-birds.md
+      - f_beta_score_analysis.py: cli/f-beta-score-analysis.md
+      - filter_and_merge_detections.py: cli/filter-and-merge-detections.md
+      - confusion_matrix_analysis.py: cli/confusion-matrix-analysis.md
+      - streamlit/app.py: cli/streamlit-app.md
+  - Pipeline:
+      - Overview: pipeline/overview.md
+      - Detection Internals: pipeline/detect-birds-internals.md
+      - Training vs Inference: pipeline/training-vs-inference.md
+      - Inference Pipeline: pipeline/inference-pipeline.md
+      - Troubleshooting Notes: pipeline/troubleshooting.md
+      - Results: pipeline/results.md
+  - Data and Formats:
+      - Overview: formats/index.md
+      - Inputs and Labels: formats/inputs-and-annotations.md
+      - Output Files: formats/outputs.md
+  - Models and Metrics:
+      - Overview: models-and-metrics/index.md
+      - Just-Bird: models-and-metrics/just-bird.md
+      - All-in-One: models-and-metrics/all-in-one.md
+      - Northeastern-US: models-and-metrics/northeastern-us.md
+  - API Reference:
+      - Configuration: api/config.md
+      - Inference: api/inference.md
+      - Evaluation: api/evaluation.md
