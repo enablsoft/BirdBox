@@ -1,54 +1,36 @@
 # Demo
 
+BirdBox offers an [interactive demo](https://birdnet.cornell.edu/birdbox/){ target="_blank" rel="noopener noreferrer" } to run model inference on single audio files.
+The environment is capable of CUDA, has all dependencies pre-installed and can access the most recent BirdBox YOLO-models.
 
+## Limitations
 
-## Streamlit Interface
+The host uses an RTX 3080 Ti with 12 GB of VRAM.
+This is sufficient to effectively run inference with the provided YOLO-models.
+But due to this hardware limit the interactive demo enforces:
 
-![Streamlit UI](../img/streamlit_ui_screenshot.png)
+- max. concurrent users: 10
+- max. file size: 200 MB
+- max. file length: 10 minutes
 
+For any other purpose use the CLI on your own system as described in [CLI Reference](../cli/index.md).
+Alternatively, you can also host the interactive demo yourself.
 
-Yes, this is possible, with one important caveat:
-Material for MkDocs can render the page and embed web content, but it cannot execute the Python/Streamlit inference pipeline on its own.
+## Self-hosted demo
 
-To get the same behavior as `src/streamlit/app.py` (file upload, model selection, and spectrogram with bounding boxes), the recommended approach is to host the Streamlit app and embed it here.
-
-## Recommended Architecture
-
-- **UI shell**: Material for MkDocs page (`docs/demo/overview.md`)
-- **Interactive runtime**: hosted Streamlit app (same code as `src/streamlit/app.py`)
-- **Embed method**: `iframe`
-
-This keeps the docs static and fast, while the demo remains fully interactive.
-
-## Embedded Demo
-
-Replace `https://YOUR-STREAMLIT-URL` with your deployed Streamlit URL.
-
-<iframe
-  src="https://YOUR-STREAMLIT-URL"
-  width="100%"
-  height="900"
-  style="border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px;"
-  loading="lazy"
-  title="BirdBox interactive demo"
-></iframe>
-
-## Local Alternative
-
-If you do not want to host the demo yet, users can run the same interface locally:
+To host the demo yourself you have to setup the [BirdBox environment](installation.md) beforehand.
+If the installation is complete just run:
 
 ```bash
 streamlit run src/streamlit/app.py
 ```
 
-That local app already includes:
+## Interface
 
-- audio file upload (`wav`, `flac`, `ogg`, `mp3`)
-- model selection from `models/`
-- PCEN spectrogram generation
-- detection bounding boxes and labels
+If everything works as intended you should see an interface similar to this one:
 
-## Notes
+![Streamlit UI](../img/streamlit_ui_screenshot.png)
 
-- GitHub Pages/MkDocs hosting is static, so model inference must run in a separate service (like Streamlit Cloud, Hugging Face Spaces, or your own server).
-- If embedding is blocked by browser security headers, link out to the hosted demo page instead of using an iframe.
+## Output Formats
+
+For detailed explanations of the output formats, see [Data and Formats](../formats/index.md).
