@@ -33,4 +33,4 @@ If everything works as intended you should see an interface similar to this one:
 
 ## Output Formats
 
-For detailed explanations of the output formats, see [Data and Formats](../formats/index.md).
+For detailed explanations of the output formats, see [Data In/Out](../data/index.md).
